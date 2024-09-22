@@ -14,15 +14,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  bool _maskEmail = false; // Boolean to determine if email should be masked
-  Timer? _timer; // Timer for periodic fetch
+  bool _maskEmail = false;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); // Observe app lifecycle
-    _fetchRemoteConfig(); // Fetch initial remote config values
-    _startPeriodicFetch(); // Start periodic fetching of remote config
+    WidgetsBinding.instance.addObserver(this);
+    _fetchRemoteConfig();
+    _startPeriodicFetch();
   }
 
   @override
@@ -46,9 +46,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // Set a short cache expiration time for development
     await remoteConfig.fetchAndActivate();
     setState(() {
-      _maskEmail = remoteConfig.getBool('mask_email'); // Update state with fetched value
+      _maskEmail = remoteConfig.getBool('mask_email');
     });
-    print('Mask Email: $_maskEmail'); // Debugging output
+    print('Mask Email: $_maskEmail');
   }
 
   // Start periodic fetching of remote config every 2 seconds
@@ -82,8 +82,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               color: Color(0xFFF5F9FD),
             ),
             onPressed: () async {
-              await AuthService().signOut(); // Sign out action
-              Navigator.pushReplacementNamed(context, '/'); // Navigate to login screen
+              await AuthService().signOut();
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
         ],
@@ -91,20 +91,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       body: Consumer<HomeViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.isLoading) {
-            return const Center(child: CircularProgressIndicator()); // Loading indicator
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (viewModel.error.isNotEmpty) {
-            return Center(child: Text('Error: ${viewModel.error}')); // Display error message
+            return Center(child: Text('Error: ${viewModel.error}'));
           }
 
-          // Build list of comments
           return ListView.builder(
             itemCount: viewModel.comments.length,
             itemBuilder: (context, index) {
               final comment = viewModel.comments[index];
               final initialLetter = comment.name.isNotEmpty ? comment.name[0].toUpperCase() : '';
-              final displayEmail = _maskEmail ? maskEmail(comment.email) : comment.email; // Mask email if required
+              final displayEmail = _maskEmail ? maskEmail(comment.email) : comment.email;
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),

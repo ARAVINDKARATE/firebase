@@ -34,9 +34,9 @@ class AuthService {
       });
 
       Fluttertoast.showToast(msg: 'Signup successful!');
-      Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
+      Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
-      _handleAuthError(e); // Handle authentication errors
+      _handleAuthError(e);
     }
   }
 
@@ -52,9 +52,9 @@ class AuthService {
       // Sign in the user
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       Fluttertoast.showToast(msg: 'Login successful!');
-      Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
+      Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
-      _handleAuthError(e); // Handle authentication errors
+      _handleAuthError(e);
     }
   }
 

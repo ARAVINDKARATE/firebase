@@ -30,7 +30,7 @@ String? validatePassword(String password) {
 String maskEmail(String email) {
   int atIndex = email.indexOf('@');
   if (atIndex < 3) {
-    return email; // Don't mask if the email is too short
+    return email;
   }
   // Mask characters after the 3rd character and before '@'
   return '${email.substring(0, 3)}****${email.substring(atIndex)}';

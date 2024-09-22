@@ -21,8 +21,8 @@ class HomeViewModel extends ChangeNotifier {
   ///
   /// Sets the loading state, handles errors, and updates the comments list.
   Future<void> fetchComments() async {
-    _isLoading = true; // Set loading state to true
-    notifyListeners(); // Notify listeners of the change
+    _isLoading = true;
+    notifyListeners();
 
     try {
       // Fetch comments from the service
@@ -31,8 +31,8 @@ class HomeViewModel extends ChangeNotifier {
       // Capture any errors during fetch
       _error = e.toString();
     } finally {
-      _isLoading = false; // Reset loading state
-      notifyListeners(); // Notify listeners of the final state
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }
