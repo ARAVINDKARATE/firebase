@@ -1,10 +1,59 @@
+import 'dart:async'; // Import Timer
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:firebase_sample_app/services/auth_service.dart';
 import 'package:firebase_sample_app/viewmodela/home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  bool _maskEmail = false;
+  Timer? _timer; // Declare Timer
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _fetchRemoteConfig();
+    _startPeriodicFetch(); // Start periodic fetch
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel(); // Cancel timer on dispose
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _fetchRemoteConfig(); // Fetch new values when the app resumes
+    }
+  }
+
+  Future<void> _fetchRemoteConfig() async {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+
+    // Set a short cache expiration time for development
+    await remoteConfig.fetchAndActivate();
+    setState(() {
+      _maskEmail = remoteConfig.getBool('mask_email');
+    });
+    print('Mask Email: $_maskEmail'); // Debugging output
+  }
+
+  void _startPeriodicFetch() {
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      _fetchRemoteConfig(); // Fetch every 2 seconds
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +100,7 @@ class HomeScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final comment = viewModel.comments[index];
               final initialLetter = comment.name.isNotEmpty ? comment.name[0].toUpperCase() : '';
+              final displayEmail = _maskEmail ? maskEmailString(comment.email) : comment.email;
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -86,13 +136,13 @@ class HomeScreen extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    const Text(
-                                      'Name: ',
+                                    Text(
+                                      'Name : ',
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Poppins',
-                                        color: Color(0xFF303F60),
+                                        color: const Color(0xFF303F60).withOpacity(0.4),
                                       ),
                                     ),
                                     Expanded(
@@ -104,7 +154,7 @@ class HomeScreen extends StatelessWidget {
                                           fontFamily: 'Poppins',
                                           color: Color(0xFF303F60),
                                         ),
-                                        overflow: TextOverflow.ellipsis, // Prevent overflow
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -112,23 +162,25 @@ class HomeScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    const Text(
-                                      'Email: ',
+                                    Text(
+                                      'Email : ',
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                         fontFamily: 'Poppins',
-                                        color: Color(0xFF303F60),
+                                        color: const Color(0xFF303F60).withOpacity(0.4),
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
-                                        comment.email,
+                                        displayEmail,
                                         style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
                                           fontFamily: 'Poppins',
                                           color: Color(0xFF303F60),
                                         ),
-                                        overflow: TextOverflow.ellipsis, // Prevent overflow
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -140,7 +192,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Padding(
-                        padding: const EdgeInsets.only(left: 76), // Align with name and email
+                        padding: const EdgeInsets.only(left: 76),
                         child: Text(
                           comment.body,
                           style: const TextStyle(
@@ -159,5 +211,14 @@ class HomeScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String maskEmailString(String email) {
+    int indexOfAt = email.indexOf('@');
+    if (indexOfAt > 3) {
+      return '${email.substring(0, 3)}****@${email.substring(indexOfAt + 1)}';
+    } else {
+      return email; // Return original if less than 3 characters
+    }
   }
 }

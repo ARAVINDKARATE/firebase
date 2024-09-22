@@ -14,3 +14,13 @@ String? validatePassword(String password) {
   if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) return 'Password must contain at least one special character';
   return null;
 }
+
+String maskEmail(String email) {
+  // Find the index of '@'
+  int atIndex = email.indexOf('@');
+  if (atIndex < 3) {
+    return email; // Don't mask if the email is too short
+  }
+  // Mask all characters after the 3rd character and before '@'
+  return '${email.substring(0, 3)}****${email.substring(atIndex)}';
+}

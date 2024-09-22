@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart'; // Import Remote Config
 import 'package:firebase_sample_app/firebase_options.dart';
 import 'package:firebase_sample_app/pages/home/home.dart';
 import 'package:firebase_sample_app/pages/login/login.dart';
@@ -11,8 +12,18 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await setupRemoteConfig(); // Call to set up Remote Config
 
   runApp(const MyApp());
+}
+
+Future<void> setupRemoteConfig() async {
+  final remoteConfig = FirebaseRemoteConfig.instance;
+  await remoteConfig.setConfigSettings(RemoteConfigSettings(
+    fetchTimeout: const Duration(seconds: 1),
+    minimumFetchInterval: const Duration(seconds: 2),
+  ));
+  await remoteConfig.fetchAndActivate();
 }
 
 class MyApp extends StatelessWidget {
@@ -30,9 +41,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(primarySwatch: Colors.blue),
         initialRoute: '/',
         routes: {
-          '/': (context) => Login(), // Define the initial route
-          '/signup': (context) => Signup(), // Define the signup route
-          '/home': (context) => HomeScreen(), // Define your home route
+          '/': (context) => const Login(), // Define the initial route
+          '/signup': (context) => const Signup(), // Define the signup route
+          '/home': (context) => const HomeScreen(), // Define your home route
         },
       ),
     );

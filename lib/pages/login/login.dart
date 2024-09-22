@@ -59,7 +59,7 @@ class _LoginState extends State<Login> {
                     children: [
                       const Text(
                         "Already have an account?",
-                        style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w400),
+                        style: TextStyle(color: Color(0xFF303F60), fontSize: 18, fontWeight: FontWeight.w400),
                       ),
                       TextButton(
                         onPressed: () {

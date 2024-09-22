@@ -1,6 +1,6 @@
-// viewmodels/home_view_model.dart
-import 'package:firebase_sample_app/services/comments_services.dart';
 import 'package:flutter/material.dart';
+
+import '../services/comments_services.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final CommentService _commentService = CommentService();

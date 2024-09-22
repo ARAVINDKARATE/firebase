@@ -78,7 +78,7 @@ class _SignupState extends State<Signup> {
                       const Text(
                         "New here?",
                         style: TextStyle(
-                          color: Colors.black,
+                          color: Color(0xFF303F60),
                           fontSize: 18,
                           fontWeight: FontWeight.w400,
                           fontFamily: 'Poppins',
