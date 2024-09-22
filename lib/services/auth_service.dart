@@ -7,6 +7,10 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  /// Signs up a new user with the provided name, email, and password.
+  ///
+  /// Stores user information in Firestore upon successful signup
+  /// and navigates to the home screen.
   Future<void> signup({
     required String name,
     required String email,
@@ -14,6 +18,7 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
+      // Create user with email and password
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -21,6 +26,7 @@ class AuthService {
 
       String userId = userCredential.user!.uid;
 
+      // Store user details in Firestore
       await _firestore.collection('users').doc(userId).set({
         'name': name,
         'email': email,
@@ -28,26 +34,31 @@ class AuthService {
       });
 
       Fluttertoast.showToast(msg: 'Signup successful!');
-      Navigator.pushReplacementNamed(context, '/home'); // Adjust route name
+      Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
     } on FirebaseAuthException catch (e) {
-      _handleAuthError(e);
+      _handleAuthError(e); // Handle authentication errors
     }
   }
 
+  /// Signs in an existing user with the provided email and password.
+  ///
+  /// Navigates to the home screen upon successful login.
   Future<void> signin({
     required String email,
     required String password,
     required BuildContext context,
   }) async {
     try {
+      // Sign in the user
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       Fluttertoast.showToast(msg: 'Login successful!');
-      Navigator.pushReplacementNamed(context, '/home'); // Adjust route name
+      Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
     } on FirebaseAuthException catch (e) {
-      _handleAuthError(e);
+      _handleAuthError(e); // Handle authentication errors
     }
   }
 
+  /// Signs out the current user.
   Future<void> signOut() async {
     try {
       await _auth.signOut();
@@ -57,6 +68,7 @@ class AuthService {
     }
   }
 
+  /// Handles Firebase authentication errors and displays appropriate messages.
   void _handleAuthError(FirebaseAuthException e) {
     String message = '';
     switch (e.code) {

@@ -47,6 +47,7 @@ class _LoginState extends State<Login> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  // Spacing for aesthetics
                   SizedBox(height: MediaQuery.of(context).size.height * 0.2),
                   _emailAddress(),
                   const SizedBox(height: 20),
@@ -54,45 +55,7 @@ class _LoginState extends State<Login> {
                   SizedBox(height: MediaQuery.of(context).size.height * 0.27),
                   _signin(context),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Already have an account?",
-                        style: TextStyle(color: Color(0xFF303F60), fontSize: 18, fontWeight: FontWeight.w400),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) => const Signup(),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0); // Start from the right
-                                  const end = Offset.zero; // End at the center
-                                  const curve = Curves.easeInOut;
-
-                                  var tween = Tween<Offset>(begin: begin, end: end).chain(CurveTween(curve: curve));
-                                  var offsetAnimation = animation.drive(tween);
-
-                                  return SlideTransition(
-                                    position: offsetAnimation,
-                                    child: child,
-                                  );
-                                },
-                              ));
-                        },
-                        child: const Text(
-                          "Signup",
-                          style: TextStyle(
-                            color: Color(0xFF0C54BE),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildSignupRedirect(),
                 ],
               ),
             ),
@@ -102,6 +65,7 @@ class _LoginState extends State<Login> {
     );
   }
 
+  // Text field for entering email
   Widget _emailAddress() {
     return TextField(
       controller: _emailController,
@@ -120,6 +84,7 @@ class _LoginState extends State<Login> {
     );
   }
 
+  // Text field for entering password
   Widget _password() {
     return TextField(
       controller: _passwordController,
@@ -149,6 +114,7 @@ class _LoginState extends State<Login> {
     );
   }
 
+  // Sign-in button to trigger the login process
   Widget _signin(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
@@ -157,6 +123,7 @@ class _LoginState extends State<Login> {
           _passwordError = validatePassword(_passwordController.text);
         });
 
+        // If validation fails, show a toast message
         if (_emailError != null || _passwordError != null) {
           Fluttertoast.showToast(
             msg: _emailError ?? _passwordError!,
@@ -168,6 +135,7 @@ class _LoginState extends State<Login> {
             fontSize: 16.0,
           );
         } else {
+          // If validation passes, call the login method in the view model
           await _viewModel.login(_emailController.text, _passwordController.text, context);
         }
       },
@@ -182,6 +150,49 @@ class _LoginState extends State<Login> {
         "Sign In",
         style: TextStyle(color: Color(0xFFF5F9FD), fontSize: 20, fontWeight: FontWeight.bold),
       ),
+    );
+  }
+
+  // Build the redirect to signup page
+  Widget _buildSignupRedirect() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Already have an account?",
+          style: TextStyle(color: Color(0xFF303F60), fontSize: 18, fontWeight: FontWeight.w400),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => const Signup(),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
+
+                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
+                ));
+          },
+          child: const Text(
+            "Signup",
+            style: TextStyle(
+              color: Color(0xFF0C54BE),
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,3 +1,7 @@
+/// Validates an email address.
+///
+/// Returns a validation error message if the email is invalid,
+/// or null if it is valid.
 String? validateEmail(String email) {
   final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
   if (email.isEmpty) return 'Email cannot be empty';
@@ -5,6 +9,10 @@ String? validateEmail(String email) {
   return null;
 }
 
+/// Validates a password.
+///
+/// Returns a validation error message if the password is invalid,
+/// or null if it is valid.
 String? validatePassword(String password) {
   if (password.isEmpty) return 'Password cannot be empty';
   if (password.length < 8) return 'Password must be at least 8 characters';
@@ -15,12 +23,15 @@ String? validatePassword(String password) {
   return null;
 }
 
+/// Masks an email address for privacy.
+///
+/// Returns the masked email, revealing only the first three characters
+/// and the domain.
 String maskEmail(String email) {
-  // Find the index of '@'
   int atIndex = email.indexOf('@');
   if (atIndex < 3) {
     return email; // Don't mask if the email is too short
   }
-  // Mask all characters after the 3rd character and before '@'
+  // Mask characters after the 3rd character and before '@'
   return '${email.substring(0, 3)}****${email.substring(atIndex)}';
 }

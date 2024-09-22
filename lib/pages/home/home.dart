@@ -1,6 +1,7 @@
-import 'dart:async'; // Import Timer
+import 'dart:async';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:firebase_sample_app/services/auth_service.dart';
+import 'package:firebase_sample_app/utilities/validation_util.dart';
 import 'package:firebase_sample_app/viewmodela/home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,20 +14,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  bool _maskEmail = false;
-  Timer? _timer; // Declare Timer
+  bool _maskEmail = false; // Boolean to determine if email should be masked
+  Timer? _timer; // Timer for periodic fetch
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _fetchRemoteConfig();
-    _startPeriodicFetch(); // Start periodic fetch
+    WidgetsBinding.instance.addObserver(this); // Observe app lifecycle
+    _fetchRemoteConfig(); // Fetch initial remote config values
+    _startPeriodicFetch(); // Start periodic fetching of remote config
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this); // Clean up observer
     _timer?.cancel(); // Cancel timer on dispose
     super.dispose();
   }
@@ -38,20 +39,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  // Fetch values from Firebase Remote Config
   Future<void> _fetchRemoteConfig() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
 
     // Set a short cache expiration time for development
     await remoteConfig.fetchAndActivate();
     setState(() {
-      _maskEmail = remoteConfig.getBool('mask_email');
+      _maskEmail = remoteConfig.getBool('mask_email'); // Update state with fetched value
     });
     print('Mask Email: $_maskEmail'); // Debugging output
   }
 
+  // Start periodic fetching of remote config every 2 seconds
   void _startPeriodicFetch() {
     _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      _fetchRemoteConfig(); // Fetch every 2 seconds
+      _fetchRemoteConfig(); // Fetch remote config periodically
     });
   }
 
@@ -79,8 +82,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               color: Color(0xFFF5F9FD),
             ),
             onPressed: () async {
-              await AuthService().signOut();
-              Navigator.pushReplacementNamed(context, '/');
+              await AuthService().signOut(); // Sign out action
+              Navigator.pushReplacementNamed(context, '/'); // Navigate to login screen
             },
           ),
         ],
@@ -88,19 +91,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       body: Consumer<HomeViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator()); // Loading indicator
           }
 
           if (viewModel.error.isNotEmpty) {
-            return Center(child: Text('Error: ${viewModel.error}'));
+            return Center(child: Text('Error: ${viewModel.error}')); // Display error message
           }
 
+          // Build list of comments
           return ListView.builder(
             itemCount: viewModel.comments.length,
             itemBuilder: (context, index) {
               final comment = viewModel.comments[index];
               final initialLetter = comment.name.isNotEmpty ? comment.name[0].toUpperCase() : '';
-              final displayEmail = _maskEmail ? maskEmailString(comment.email) : comment.email;
+              final displayEmail = _maskEmail ? maskEmail(comment.email) : comment.email; // Mask email if required
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -211,14 +215,5 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         },
       ),
     );
-  }
-
-  String maskEmailString(String email) {
-    int indexOfAt = email.indexOf('@');
-    if (indexOfAt > 3) {
-      return '${email.substring(0, 3)}****@${email.substring(indexOfAt + 1)}';
-    } else {
-      return email; // Return original if less than 3 characters
-    }
   }
 }

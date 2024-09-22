@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:firebase_sample_app/models/comments_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 class CommentService {
@@ -10,27 +12,8 @@ class CommentService {
       List<dynamic> data = json.decode(response.body);
       return data.map((json) => Comment.fromJson(json)).toList();
     } else {
+      Fluttertoast.showToast(msg: 'Failed to load comments');
       throw Exception("Failed to load comments");
     }
-  }
-}
-
-class Comment {
-  final int postId;
-  final int id;
-  final String name;
-  final String email;
-  final String body;
-
-  Comment({required this.postId, required this.id, required this.name, required this.email, required this.body});
-
-  factory Comment.fromJson(Map<String, dynamic> json) {
-    return Comment(
-      postId: json['postId'],
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      body: json['body'],
-    );
   }
 }
